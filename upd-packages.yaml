@@ -1,6 +1,6 @@
 ---
 - name: upgrade apt packages
-  hosts: cwc_dev_servers, cwc_ad_server
+  hosts: all
   become: true
 
   tasks:
