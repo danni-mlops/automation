@@ -9,7 +9,7 @@
     - name: Backup existing SSH configuration
       copy:
         src: "{{ ssh_config_file }}"
-        est: "{{ ssh_config_file }}.bak"
+        dest: "{{ ssh_config_file }}.bak"
         owner: root
         group: root
         mode: '0600'
