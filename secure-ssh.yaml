@@ -23,7 +23,7 @@
           Protocol 2
           PermitRootLogin no
           PasswordAuthentication yes
-          PubkeyAuthentication yes
+          PubkeyAuthentication no
           PermitEmptyPasswords no
           ChallengeResponseAuthentication no
           UsePAM yes
@@ -34,13 +34,20 @@
           ClientAliveCountMax 2
           PermitUserEnvironment no
           LogLevel VERBOSE
-          Ciphers aes256-ctr,aes192-ctr,aes128-ctr
-          MACs hmac-sha2-512,hmac-sha2-256,hmac-ripemd160
-          KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-          AllowGroups sshusers
+          
+    - name: Test SSH configuration
+      command: sshd -t
+      ignore_errors: yes
+      register: sshd_test
+
+    - name: Fail if SSH configuration is invalid
+      fail:
+        msg: "Invalid SSH configuration detected. Check the configuration and try again."
+      when: sshd_test.rc != 0
 
     - name: Ensure the SSH service is enabled and started
       service:
         name: sshd
         enabled: yes
         state: restarted
+      when: sshd_test.rc == 0
