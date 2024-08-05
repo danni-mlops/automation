@@ -1,9 +1,9 @@
 ---
-- name: Update and upgrade apt packages
-  hosts: all
+- name: upgrade apt packages
+  hosts: cwc-dev-servers
   become: true
 
   tasks:
-    - name: Update packages with apt
+    - name: Upgrade packages with apt
       apt:
         upgrade: yes
