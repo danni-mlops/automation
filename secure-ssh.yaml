@@ -8,8 +8,8 @@
   tasks:
     - name: Backup existing SSH configuration
       copy:
-        remote_src: "{{ ssh_config_file }}"
-        remote_dest: "{{ ssh_config_file }}.bak"
+        src: "{{ ssh_config_file }}"
+        est: "{{ ssh_config_file }}.bak"
         owner: root
         group: root
         mode: '0600'
