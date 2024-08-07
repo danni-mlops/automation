@@ -16,7 +16,7 @@
           - clamav-daemon
           - clamav-freshclam
         state: present
-        update_cache: yes
+        #update_cache: yes
 
     - name: Ensure ClamAV service is started and enabled
       service:
