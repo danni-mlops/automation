@@ -51,7 +51,7 @@
       apt:
         name: mailutils
         state: present
-        update_cache: yes
+        #update_cache: yes
 
     - name: Set up a script for sending scan reports
       copy:
