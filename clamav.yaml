@@ -1,0 +1,82 @@
+---
+- name: Install and Configure ClamAV
+  hosts: all
+  become: yes
+  vars:
+    clamav_config_file: /etc/clamav/clamd.conf
+    clamav_freshclam_config_file: /etc/clamav/freshclam.conf
+    scan_directory: /home
+    email_recipient: daniel@capewesley.com
+
+  tasks:
+    - name: Install ClamAV and related packages
+      apt:
+        name:
+          - clamav
+          - clamav-daemon
+          - clamav-freshclam
+        state: present
+        update_cache: yes
+
+    - name: Ensure ClamAV service is started and enabled
+      service:
+        name: clamav-daemon
+        state: started
+        enabled: yes
+
+    - name: Configure ClamAV
+      lineinfile:
+        path: "{{ clamav_config_file }}"
+        regexp: '^#?LogFile ='
+        line: 'LogFile = /var/log/clamav/clamd.log'
+      notify:
+        - Restart ClamAV
+
+    - name: Configure Freshclam
+      lineinfile:
+        path: "{{ clamav_freshclam_config_file }}"
+        regexp: '^#?UpdateLogFile ='
+        line: 'UpdateLogFile = /var/log/clamav/freshclam.log'
+      notify:
+        - Restart Freshclam
+
+    - name: Schedule daily virus scan
+      cron:
+        name: "Daily ClamAV Scan"
+        job: "/usr/bin/clamscan -r {{ scan_directory }} --log=/var/log/clamav/scan.log"
+        minute: "0"
+        hour: "2"  # Runs at 2 AM daily
+
+    - name: Install mailutils for sending alerts
+      apt:
+        name: mailutils
+        state: present
+        update_cache: yes
+
+    - name: Set up a script for sending scan reports
+      copy:
+        dest: /usr/local/bin/send_clamav_report.sh
+        content: |
+          #!/bin/bash
+          if [ -s /var/log/clamav/scan.log ]; then
+            mail -s "ClamAV Daily Scan Report" {{ email_recipient }} < /var/log/clamav/scan.log
+          fi
+        mode: '0755'
+
+    - name: Schedule daily email report
+      cron:
+        name: "Daily ClamAV Report"
+        job: "/usr/local/bin/send_clamav_report.sh"
+        minute: "30"
+        hour: "2"  # Runs at 2:30 AM daily, after the scan
+
+  handlers:
+    - name: Restart ClamAV
+      service:
+        name: clamav-daemon
+        state: restarted
+
+    - name: Restart Freshclam
+      service:
+        name: clamav-freshclam
+        state: restarted
