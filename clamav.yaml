@@ -5,7 +5,7 @@
   vars:
     clamav_config_file: /etc/clamav/clamd.conf
     clamav_freshclam_config_file: /etc/clamav/freshclam.conf
-    scan_directory: /home
+    scan_directory: /
     email_recipient: daniel@capewesley.com
 
   tasks:
