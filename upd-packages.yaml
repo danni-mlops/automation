@@ -7,3 +7,12 @@
     - name: Upgrade packages with apt
       apt:
         upgrade: yes
+
+# - name: Update and upgrade apt packages
+#   become: true
+#   apt:
+#     upgrade: yes
+#     update_cache: yes
+#     cache_valid_time: 86400 #One day
+
+# ansible all -m apt -a "upgrade=yes update_cache=yes cache_valid_time=86400" --become
